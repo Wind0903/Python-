@@ -1,0 +1,220 @@
+import tkinter as tk
+import paho.mqtt.client as mqtt
+import xlwt
+import time
+import json
+import requests
+window = tk.Tk()
+window.title('量測分析')
+#寬度 200
+#高度 250
+#螢幕位置 X 300
+#螢幕位置 Y 400
+
+data = requests.get('https://data.epa.gov.tw/api/v2/aqx_p_432?api_key=e8dd42e6-9b8b-43f8-991e-b3dee723a52d&limit=1000&sort=ImportDate%20desc&format=json')
+data = data.text
+data = json.loads(data)
+data = data[0]
+print(data['sitename'])
+global ss
+
+# 當接收到從伺服器發送的訊息時要進行的動作
+def on_message(client, userdata, msg):
+    # 轉換編碼utf-8才看得懂中文 
+    global msgs , sa , sb  , sc ,sd 
+
+    msgs = (msg.payload.decode('utf-8'))
+    strlist = msgs.split(',')
+    sa = strlist[0] #1號數值
+    sb = strlist[1] #2號數值
+    sc = strlist[2] #3號數值
+    sd = strlist[3]
+    se = strlist[4]
+    sf = strlist[5]
+    print('1號感測數值:',sa)#1號數值
+    print('2號感測數值:',sb)#2號數值
+    print('3號感測數值:',sc)#3號數值
+    print('4號感測數值:',sd)#4號數值
+    print('5號感測數值:',se)#5號數值
+
+    saa = tk.StringVar()
+    saa.set(sa)
+    saq = tk.StringVar()
+    saq.set(sq)
+
+    sssss['textvariable'] = saa
+    sssss011['textvariable'] = saa
+    sab = tk.StringVar()
+    sab.set(sb)
+    sssss01['textvariable'] = sab
+    sac = tk.StringVar()
+    sac.set(sc)
+    sae = tk.StringVar()
+    sae.set(se)
+    sssss02['textvariable'] = sac
+    sssss03['textvariable'] = sae
+    saf = tk.StringVar()
+    saf.set(sf)
+    sssss04['textvariable'] = saf
+
+    print(msg.payload.decode('utf-8'))
+    book = xlwt.Workbook(encoding='utf-8',style_compression=0)
+    sheet = book.add_sheet('mysheet',cell_overwrite_ok=True)
+    sheet.write(0,0,'心電圖')
+    sheet.write(0,1,'IR數值')
+    sheet.write(0,2,'心率數值')
+    sheet.write(0,3,'平均心率')
+    sheet.write(1,0,sa)
+    sheet.write(1,1,sb)
+    sheet.write(1,2,sc)
+    sheet.write(1,3,sd)
+    book.save('心律血氧量測資料.xls')
+
+sa = '0'
+sb = '0'
+sc = '0'
+sd = '0'
+se = '0'
+sf = '0'
+saa = tk.StringVar()
+saa.set(sa)
+sab = tk.StringVar()
+sab.set(sb)
+sac = tk.StringVar()
+sac.set(sc)
+sad = tk.StringVar()
+sad.set(sd)
+sae = tk.StringVar()
+sae.set(se)
+saf = tk.StringVar()
+saf.set(sf)
+ss ='結束量測'
+
+global sssss , Button01
+
+def button0100():
+   
+    saw = tk.StringVar()
+    saw.set(ss)
+    Button01['text'] = '量測中'
+    #Button01['font'] = 
+    sssss.place(x=220,y=220,relh=0.1,relw=0.2)
+    Button01.place(x=0,y=0,relw=0.1)
+    Button01s.place(x=220,y=320,relh=0.1,relw=0.2)
+    sssss01.place(x=620,y=220,relh=0.1,relw=0.2)
+    sssss11.place(x=620,y=100,relh=0.1,relw=0.2)
+    sssss02.place(x=1020,y=220,relh=0.1,relw=0.2)
+    sssss04.place(x=1020,y=520,relh=0.1,relw=0.2)
+    sssss03.place(x=620,y=520,relh=0.1,relw=0.2)
+    
+
+
+    print(ss)
+def button001():
+    Button01.place(x=220,y=320,relh=0.1,relw=0.2)
+    Button01['text'] = '開始量測'
+   
+    Button01s.place(x=10220,y=10320,relh=0.1,relw=0.2)
+    Button01.place(x=220,y=320,relh=0.1,relw=0.2)
+    sssss.place(x=1000,y=1000,relh=0.1,relw=0.2)
+    sssss01.place(x=1620,y=1220,relh=0.1,relw=0.2)
+    sssss11.place(x=1620,y=1100,relh=0.1,relw=0.2)
+    sssss02.place(x=1020,y=1220,relh=0.1,relw=0.2)
+    sssss04.place(x=1020,y=1520,relh=0.1,relw=0.2)
+    sssss03.place(x=1620,y=1520,relh=0.1,relw=0.2)
+
+global sssss , sssss1 , sw , Button01s ,sssss011
+
+sw = '尚未碰觸'
+sq = '感測中請稍後'
+saq = tk.StringVar()
+saq.set(sq)
+
+frame = tk.Frame(window,bg='skyblue', width=1920, height=1080)
+frame.pack()
+
+frame01 = tk.Frame(window,bg='skyblue', width=1920, height=1080)
+frame01.pack()
+
+    
+sssss = tk.Label(frame,textvariable=saa, bg='skyblue', font=('Arial', 36), width=15, height=2)
+sssss11 = tk.Label(frame,textvariable=saq, bg='skyblue', font=('Arial', 36), width=15, height=2)
+sssss01 = tk.Label(frame,textvariable=sab, bg='skyblue', font=('Arial', 36), width=15, height=2)
+sssss02 = tk.Label(frame,textvariable=sac, bg='skyblue', font=('Arial', 36), width=15, height=2)
+sssss03 = tk.Label(frame,textvariable=sae, bg='skyblue', font=('Arial', 36), width=15, height=2)
+sssss04 = tk.Label(frame,textvariable=saf, bg='skyblue', font=('Arial', 36), width=15, height=2)
+###########
+global frame01s
+frame01s = tk.Frame(window)
+def BackHome00():
+    frame01s.destroy()
+
+#sssss011 = tk.Label(frame01s,textvariable=saa, bg='skyblue', font=('Arial', 36), width=15, height=2)
+def bodytem():
+    global frame01s ,sssss011
+    frame01s = tk.Frame(window,bg='skyblue', width=1920, height=1080)
+    frame01s.place(x=1,y=1)
+    Button1010 = tk.Button(frame01s,text='匯出紀錄',font=('Arial',28),bg='skyblue',relief='ridge',bd=6)
+    Button1010.place(relx=0.1,rely=0.1,x=330,y=300)
+    Button101010 = tk.Button(frame01s,text='停止量測',font=('Arial',28),bg='skyblue',relief='ridge',bd=6)
+    Button101010.place(relx=0.1,rely=0.1,x=630,y=300)
+    sssss011ss = tk.Label(frame01s,text='心電圖',fg='red', bg='skyblue', font=('Arial', 82), width=15, height=2)
+    sssss011ss.place(x=580,y=70,relh=0.1,relw=0.2)
+    backhomebutton =tk.Button(frame01s,text='首頁',fg='red',relief='ridge',bd=6,bg='skyblue', font=('Arial', 32), width=15, height=2,comman=BackHome00)
+    backhomebutton.place(x=520,y=700,relh=0.05,relw=0.1)
+    sssss011 = tk.Label(frame01s,textvariable=saa, bg='skyblue', font=('Arial', 72), width=15, height=2)
+    sssss011.place(x=580,y=220,relh=0.1,relw=0.2)
+
+
+
+Button20 = tk.Button(frame,text='心電圖',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6,comman = bodytem)
+Button20.place(x=220,y=620,relh=0.1,relw=0.2)
+########################################################
+
+Button01 = tk.Button(frame,text='開始量測',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6,comman=button0100)
+Button01.place(x=220,y=320,relh=0.1,relw=0.2)
+
+Button01s = tk.Button(frame,text='結束量測',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6,comman=button001)
+
+
+Button02 = tk.Label(frame01,text='PPG IR Value',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6)
+Button02.place(x=620,y=320,relh=0.1,relw=0.2)
+
+Button03 = tk.Label(frame,text='BPM',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6)
+Button03.place(x=1020,y=320,relh=0.1,relw=0.2)
+
+Button04 = tk.Label(frame,text='HR Value',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6)
+Button04.place(x=620,y=620,relh=0.1,relw=0.2)
+
+Button05 = tk.Label(frame,text='SPO 2 Value',font=("Arial", 24),bg='skyblue',relief='ridge',bd=6)
+Button05.place(x=1020,y=620,relh=0.1,relw=0.2)
+
+
+
+# global var
+
+#MQTT Connection
+# def on_connect(client, userdata, flags, rc):
+#     #print("Connected with result code "+str(rc))
+#     # 將訂閱主題寫在on_connet中
+#     # 如果我們失去連線或重新連線時 
+#     # 地端程式將會重新訂閱
+#     client.subscribe("20200907/test")
+
+# client = mqtt.Client()
+# # # 設定連線的動作
+# client.on_connect = on_connect
+# # # 設定接收訊息的動作
+# client.on_message = on_message
+# # # # # 設定登入帳號密碼
+# # client.username_pw_set("try","xxxx")
+# # # 設定連線資訊(IP, Port, 連線時間)
+# client.connect("192.168.137.84", 1883, 60)
+# #client.loop_forever()
+# client.loop_start()
+
+
+#window.after()
+#運行視窗
+window.mainloop()
+window.after(100,bodytem)
